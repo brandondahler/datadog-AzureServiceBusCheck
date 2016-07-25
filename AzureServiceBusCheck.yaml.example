@@ -8,6 +8,10 @@ instances:
 #    #   Note:  This will generate a file that contains a private key that allows management of your Azure account.
 #    publish_settings: /path/to/settings.publishsettings
 #
+#    # Alternatively, you can upload your own cert file and provide its location here.
+#    #   The file must be the concatenation of the certificate and private key files in PEM format.
+#    #cert_file: /path/to/cert.pem
+#
 #    # Add any custom tags to be added below.
 #    #   Tags that are automatically defined are:
 #    #     subscription:subscription_id
