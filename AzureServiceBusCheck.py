@@ -18,14 +18,12 @@ from rfc3339 import datetimetostr, tzinfo
 
 class AzureServiceBusCheck(AgentCheck):
     def check(self, instance):
-        self.log.info(sys.path)
-
         subscription_id, cert_file, namespace, tags = AzureServiceBusCheck._load_conf(instance)
         tags.append("namespace:" + namespace)
         tags.append("subscription:" + subscription_id)
 
-        sbms = ServiceBusManagementService(subscription_id, cert_file)
-        queues = sbms.list_queues(namespace)
+        management_service = ServiceBusManagementService(subscription_id, cert_file)
+        queues = management_service.list_queues(namespace)
 
         rate_base_datetime = datetime.utcnow() - timedelta(minutes=15)
         rate_datetime = rate_base_datetime \
@@ -48,18 +46,16 @@ class AzureServiceBusCheck(AgentCheck):
             self.gauge('queue.messages.transfer', queue.count_details.transfer_message_count, queue_tags)
             self.gauge('queue.messages.transfer_dead_lettered', queue.count_details.transfer_dead_letter_message_count, queue_tags)
 
-            for metric in sbms.get_supported_metrics_queue(namespace, queue.name):  # type: MetricProperties
-                print(metric.display_name, metric.name, metric.primary_aggregation, metric.unit)
-
+            for metric in management_service.get_supported_metrics_queue(namespace, queue.name):  # type: MetricProperties
                 aggregated_value = 0
 
-                metric_datas = sbms.get_metrics_data_queue(
+                metric_data_list = management_service.get_metrics_data_queue(
                     namespace, queue.name,
                     metric.name, 'PT5M',
                     '$filter=Timestamp ge datetime\'%s\' and Timestamp lt datetime\'%s\'' % (rate_datetime_lower_string, rate_datetime_upper_string))
 
-                if len(metric_datas) > 0:
-                    metric_data = metric_datas.pop()
+                if len(metric_data_list) > 0:
+                    metric_data = metric_data_list.pop()
 
                     aggregated_value = metric_data.total
 
@@ -68,7 +64,6 @@ class AzureServiceBusCheck(AgentCheck):
 
                 self.gauge('queue.metrics.%s' % metric.name, aggregated_value,
                            queue_tags, timestamp=rate_datetime_timestamp)
-
 
     @staticmethod
     def _load_conf(instance):
@@ -90,8 +85,11 @@ class AzureServiceBusCheck(AgentCheck):
 if __name__ == '__main__':
     check, instances = AzureServiceBusCheck.from_yaml('AzureServiceBusCheck.yaml')
     for instance in instances:
-        print "\nRunning the check against subscription: %s" % (instance['subscription_id'])
+        print "\nRunning the check against: %s - %s" % (instance['subscription_id'], instance['namespace'])
+
         check.check(instance)
+
         if check.has_events():
             print 'Events: %s' % (check.get_events())
+
         print 'Metrics: %s' % (check.get_metrics())
