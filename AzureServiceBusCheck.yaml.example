@@ -1,0 +1,18 @@
+init_config:
+
+instances:
+#  - subscription_id: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+#    namespace: servicebus-namespace
+#
+#    # Generate a .publishsettings file by going to https://manage.windowsazure.com/PublishSettings/ .
+#    #   Note:  This will generate a file that contains a private key that allows management of your Azure account.
+#    publish_settings: /path/to/settings.publishsettings
+#
+#    # Add any custom tags to be added below.
+#    #   Tags that are automatically defined are:
+#    #     subscription:subscription_id
+#    #     namespace:namespace
+#    #     queue:queue_name
+#    tags:
+#      - custom:tag
+
