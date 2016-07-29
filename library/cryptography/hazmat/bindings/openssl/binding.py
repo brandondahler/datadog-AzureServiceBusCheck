@@ -11,7 +11,7 @@ import types
 import warnings
 
 from cryptography.exceptions import InternalError
-from _openssl import ffi, lib
+from cryptography.hazmat.bindings._openssl import ffi, lib
 from cryptography.hazmat.bindings.openssl._conditional import CONDITIONAL_NAMES
 
 _OpenSSLError = collections.namedtuple("_OpenSSLError",
